@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MindSpace - Mental Health Support</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+      }
+      :root {
+        --primary-color: #6a5acd;
+        --secondary-color: #8a2be2;
+        --background-color: #f8f4ff;
+        --text-color: #333;
+        --white: #ffffff;
+        --accent-color: #9370db;
+        --emergency-color: #ff4444;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(135deg, #e6e6fa 0%, #d8bfd8 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        overflow: hidden;
+      }
+      .chat-container {
+        width: 90vw;
+        max-width: 1200px;
+        height: 90vh;
+        background: var(--white);
+        border-radius: 30px;
+        box-shadow: 0 30px 60px rgba(106, 90, 205, 0.2);
+        display: flex;
+        overflow: hidden;
+      }
+      .sidebar {
+        width: 300px;
+        background: linear-gradient(
+          to bottom,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        display: flex;
+        flex-direction: column;
+      }
+      .sidebar-header {
+        padding: 25px;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .mental-categories {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 15px;
+      }
+      .category-item {
+        padding: 15px;
+        margin-bottom: 10px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .emergency-item {
+        background: var(--emergency-color);
+        color: white;
+        font-weight: bold;
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .category-item:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateX(10px);
+      }
+      .category-item span {
+        margin-right: 15px;
+        font-size: 1.5em;
+      }
+      .main-chat {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        background: var(--background-color);
+      }
+      .chat-header {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .chat-messages {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+      }
+      .message {
+        max-width: 80%;
+        margin-bottom: 15px;
+        padding: 15px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+      .bot-message {
+        align-self: flex-start;
+        background: white;
+        color: var(--text-color);
+      }
+      .user-message {
+        align-self: flex-end;
+        background: var(--primary-color);
+        color: white;
+      }
+      .loading-indicator {
+        align-self: flex-start;
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+      .loading-dots {
+        display: flex;
+      }
+      .loading-dot {
+        width: 10px;
+        height: 10px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        margin: 0 5px;
+        animation: bounce 0.5s infinite alternate;
+      }
+      .loading-dot:nth-child(2) {
+        animation-delay: 0.1s;
+      }
+      .loading-dot:nth-child(3) {
+        animation-delay: 0.2s;
+      }
+      @keyframes bounce {
+        to {
+          transform: translateY(-10px);
+        }
+      }
+      .chat-input {
+        display: flex;
+        padding: 15px;
+        background: white;
+        border-top: 1px solid #e6e6fa;
+      }
+      #message-input {
+        flex-grow: 1;
+        padding: 12px 15px;
+        border: 2px solid #e6e6fa;
+        border-radius: 25px;
+        margin-right: 15px;
+        font-family: "Inter", sans-serif;
+      }
+      #send-button {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      }
+      #send-button:hover {
+        transform: scale(1.1);
+      }
+      .resources-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: var(--primary-color);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 25px;
+        cursor: pointer;
+        z-index: 1000;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1001;
+        justify-content: center;
+        align-items: center;
+      }
+      .modal-content {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        max-width: 500px;
+        width: 90%;
+      }
+      .breathing-exercise {
+        text-align: center;
+        margin-top: 20px;
+        padding: 20px;
+        background: var(--background-color);
+        border-radius: 15px;
+      }
+      .breath-circle {
+        width: 100px;
+        height: 100px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        margin: 20px auto;
+        animation: breathe 8s infinite;
+      }
+      @keyframes breathe {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.5);
+        }
+      }
+      .close-modal {
+        float: right;
+        cursor: pointer;
+        font-size: 24px;
+        color: var(--text-color);
+      }
+      @media (max-width: 768px) {
+        .chat-container {
+          width: 100%;
+          height: 100%;
+          border-radius: 0;
+        }
+        .sidebar {
+          display: none;
+        }
+      }
+      .mood-tracker {
+        margin: 15px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        padding: 15px;
+        text-align: center;
+      }
+      .mood-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+      }
+      .mood-button {
+        background: rgba(255, 255, 255, 0.3);
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      }
+      .mood-button:hover {
+        transform: scale(1.1);
+      }
+      #mood-history {
+        margin-top: 15px;
+        max-height: 150px;
+        overflow-y: auto;
+      }
+      .mood-history-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        font-size: 0.8em;
+        color: white;
+      }
+      .games-section {
+        background: rgba(255, 255, 255, 0.2);
+        margin: 15px;
+        border-radius: 15px;
+        padding: 15px;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      }
+
+      .games-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .games-icon {
+        font-size: 2em;
+        margin-right: 10px;
+      }
+
+      .games-section:hover {
+        transform: scale(1.05);
+      }
+
+      #games-modal .game-categories {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      #games-modal .game-category {
+        background: rgba(106, 90, 205, 0.1);
+        border-radius: 15px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      #games-modal .game-category:hover {
+        background: rgba(106, 90, 205, 0.2);
+        transform: scale(1.05);
+      }
+
+      #games-modal .game-category span {
+        font-size: 2em;
+        margin-right: 15px;
+      }
+
+      .category-games-list {
+        display: grid;
+        gap: 10px;
+        color: #1a1a1a;
+      }
+
+      .category-game-item {
+        background: rgba(106, 90, 205, 0.1);
+        border-radius: 10px;
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .category-game-item strong {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .category-game-link {
+        background: var(--primary-color);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        text-decoration: none;
+        transition: transform 0.2s ease;
+      }
+
+      .category-game-link:hover {
+        transform: scale(1.1);
+      }
+      .emotion-detection-btn {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background: var(--secondary-color);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 25px;
+        cursor: pointer;
+        z-index: 1000;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: transform 0.2s ease;
+      }
+
+      .emotion-detection-btn:hover {
+        transform: scale(1.05);
+      }
+      :root {
+        --primary-color: #6a5acd;
+        --secondary-color: #8a2be2;
+        --background-color: #f8f4ff;
+        --text-color: #333;
+        --white: #ffffff;
+        --accent-color: #9370db;
+        --emergency-color: #ff4444;
+        --light-purple: #e6e6fa;
+        --dark-purple: #483d8b;
+        --success-green: #4caf50;
+      }
+
+      .topic-suggestions {
+        display: none;
+        background: var(--white);
+        border-radius: 20px;
+        padding: 25px;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+      }
+
+      .topic-header {
+        text-align: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid var(--primary-color);
+      }
+
+      .topic-header h3 {
+        color: var(--dark-purple);
+        font-size: 1.8em;
+        margin-bottom: 10px;
+      }
+
+      .topic-header p {
+        color: var(--text-color);
+        font-size: 1.1em;
+        line-height: 1.5;
+        opacity: 0.9;
+      }
+
+      .suggestion-group {
+        background: var(--background-color);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+
+      .suggestion-title {
+        color: var(--dark-purple);
+        font-size: 1.2em;
+        font-weight: 600;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid var(--accent-color);
+      }
+
+      .suggested-questions {
+        display: grid;
+        gap: 12px;
+      }
+
+      .suggested-question {
+        background: var(--white);
+        padding: 15px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: var(--text-color);
+        border: 1px solid var(--light-purple);
+        font-size: 1.1em;
+      }
+
+      .suggested-question:hover {
+        background: var(--primary-color);
+        color: var(--white);
+        transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(106, 90, 205, 0.2);
+      }
+
+      .close-suggestions {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        cursor: pointer;
+        font-size: 28px;
+        color: var(--text-color);
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: var(--background-color);
+        transition: all 0.3s ease;
+      }
+
+      .close-suggestions:hover {
+        background: var(--primary-color);
+        color: var(--white);
+      }
+
+      .quick-resources {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 2px solid var(--light-purple);
+      }
+
+      .resource-link {
+        display: inline-block;
+        margin: 8px;
+        padding: 10px 20px;
+        background: var(--accent-color);
+        color: var(--white);
+        border-radius: 25px;
+        text-decoration: none;
+        font-size: 0.95em;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(147, 112, 219, 0.2);
+      }
+
+      .resource-link:hover {
+        background: var(--dark-purple);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(147, 112, 219, 0.3);
+      }
+
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+        z-index: 999;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .topic-suggestions {
+          width: 95%;
+          max-height: 95vh;
+          padding: 20px;
+        }
+
+        .topic-header h3 {
+          font-size: 1.5em;
+        }
+
+        .suggestion-group {
+          padding: 15px;
+        }
+
+        .suggested-question {
+          font-size: 1em;
+          padding: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container">
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <h2>Mental Health Topics</h2>
+        </div>
+        <div class="mental-categories">
+          <!-- Emergency Categories First -->
+
+          <!-- Regular Categories -->
+          <div class="category-item"><span>😌</span> Stress Management</div>
+          <div class="category-item"><span>🧘</span> Anxiety Support</div>
+          <div class="category-item"><span>💭</span> Depression Insights</div>
+          <div class="category-item"><span>💕</span> Self-Care Strategies</div>
+          <div class="category-item"><span>💆</span> Emotional Wellness</div>
+          <div class="category-item"><span>😊</span>  Mood Swings</div>
+          <div class="category-item emergency-item">
+            <span>🆘</span> Emergency Help
+          </div>
+
+          <!-- <div class="mood-tracker"> -->
+          <!-- <h4>How are you feeling?</h4> -->
+          <!-- <div class="mood-buttons"> -->
+          <!-- <button class="mood-button" data-mood="😊">😊</button> -->
+          <!-- <button class="mood-button" data-mood="😐">😐</button> -->
+          <!-- <button class="mood-button" data-mood="😢">😢</button> -->
+          <!-- <button class="mood-button" data-mood="😠">😠</button> -->
+          <!-- </div> -->
+          <div id="mood-history"></div>
+          <div class="games-section" id="games-section">
+            <h4>Mental Health Support Games</h4>
+            <div class="games-trigger">
+              <div class="games-icon">🎮</div>
+              <span>Explore Support Games</span>
+            </div>
+          </div>
+
+          <!-- Add this modal for games -->
+          <div id="games-modal" class="modal">
+            <div class="modal-content">
+              <span class="close-modal" onclick="closeGamesModal()"
+                >&times;</span
+              >
+              <h2>Mental Health Support Games</h2>
+              <div class="game-categories">
+                <div
+                  class="game-category"
+                  data-category="Anxiety"
+                  style="color: #1a1a1a"
+                >
+                  <span>😰</span> Anxiety Support
+                </div>
+                <div
+                  class="game-category"
+                  data-category="Depression"
+                  style="color: #1a1a1a"
+                >
+                  <span>😔</span> Depression Management
+                </div>
+                <div
+                  class="game-category"
+                  data-category="Stress Management"
+                  style="color: #1a1a1a"
+                >
+                  <span>😓</span> Stress Relief
+                </div>
+                <div
+                  class="game-category"
+                  data-category="Self-Esteem"
+                  style="color: #1a1a1a"
+                >
+                  <span>💖</span> Self-Esteem Boost
+                </div>
+              </div>
+              <div id="category-games-list" class="category-games-list"></div>
+            </div>
+          </div>
+        </div>
+        <div id="modal-overlay" class="modal-overlay"></div>
+
+        <!-- Topic suggestions modal -->
+        <div id="topic-suggestions" class="topic-suggestions">
+          <span class="close-suggestions" onclick="closeSuggestions()"
+            >&times;</span
+          >
+          <div class="topic-header">
+            <h3 id="current-topic">Topic Title</h3>
+            <p id="topic-description">Topic description goes here</p>
+          </div>
+          <div id="suggestion-content"></div>
+          <div class="quick-resources">
+            <div class="suggestion-title">Helpful Resources</div>
+            <div id="topic-resources"></div>
+          </div>
+        </div>
+      </div>
+      <div class="main-chat">
+        <div class="chat-header">
+          <h3>MindMate - A Mental Health Chatbot with Emotion Recognition</h3>
+          <span>🟢 Available</span>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+          <div class="message bot-message">
+            <div>
+              Welcome to MediBot. I'm here to provide compassionate and
+              supportive mental health guidance. How can I support you today?
+            </div>
+          </div>
+        </div>
+        <div class="chat-input">
+          <input
+            type="text"
+            id="message-input"
+            placeholder="Share your thoughts..."
+          />
+          <button id="send-button">➤</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resources Button -->
+    <!-- <button class="resources-btn" onclick="openResourcesModal()">📞 Emergency Resources</button> -->
+
+    <!-- Resources Modal -->
+    <div id="resources-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" onclick="closeResourcesModal()">&times;</span>
+        <h2>Emergency Resources</h2>
+        <hr />
+        <h3>Immediate Help:</h3>
+        <p>🆘 Emergency: 911</p>
+        <p>📞 National Suicide Prevention Lifeline: 988</p>
+        <p>💬 Crisis Text Line: Text HOME to 741741</p>
+
+        <div class="breathing-exercise">
+          <h3>Quick Calming Exercise</h3>
+          <p>Follow the circle to breathe</p>
+          <div class="breath-circle"></div>
+          <p>Inhale as it grows, exhale as it shrinks</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const messageInput = document.getElementById("message-input");
+      const sendButton = document.getElementById("send-button");
+      const chatMessages = document.getElementById("chat-messages");
+      const greetingPatterns = [
+        "hi",
+        "hello",
+        "hey",
+        "good morning",
+        "good afternoon",
+        "good evening",
+        "howdy",
+        "hola",
+        "hi there",
+        "hello there",
+      ];
+
+      // Greeting responses to randomly select from
+      const greetingResponses = [
+        "Hello! How are you feeling today? 😊",
+        "Hi there! I'm here to support you. How can I help? 💫",
+        "Hello! Welcome to MindSpace. How are you doing? 🌟",
+        "Hi! I'm glad you're here. How can I assist you today? ✨",
+        "Hello! Thank you for reaching out. How may I support you? 🤗",
+      ];
+      function isGreeting(message) {
+        return greetingPatterns.some((pattern) =>
+          message.toLowerCase().trim().includes(pattern)
+        );
+      }
+
+      // Function to get random greeting response
+      function getRandomGreeting() {
+        const randomIndex = Math.floor(
+          Math.random() * greetingResponses.length
+        );
+        return greetingResponses[randomIndex];
+      }
+
+      function createLoadingIndicator() {
+        const loadingElement = document.createElement("div");
+        loadingElement.classList.add("loading-indicator");
+        loadingElement.innerHTML = `
+                <div class="loading-dots">
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                </div>
+            `;
+        chatMessages.appendChild(loadingElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return loadingElement;
+      }
+
+      function removeLoadingIndicator(loadingElement) {
+        if (loadingElement) {
+          loadingElement.remove();
+        }
+      }
+
+      function addMessage(content, type = "bot") {
+        const messageElement = document.createElement("div");
+        messageElement.classList.add(
+          "message",
+          type === "bot" ? "bot-message" : "user-message"
+        );
+        messageElement.innerHTML = `
+                <div>${content}</div>
+            `;
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      async function sendMessage() {
+        const message = messageInput.value.trim();
+        if (!message) return;
+
+        addMessage(message, "user");
+        messageInput.value = "";
+
+        const loadingIndicator = createLoadingIndicator();
+
+        // Check for greetings first
+        if (isGreeting(message)) {
+          removeLoadingIndicator(loadingIndicator);
+          addMessage(getRandomGreeting());
+          return;
+        }
+
+        // Check for emergency keywords
+        const emergencyKeywords = [
+          "suicide",
+          "kill myself",
+          "end my life",
+          "emergency",
+          "die",
+          "dead",
+          "death",
+        ];
+        const isEmergency = emergencyKeywords.some((keyword) =>
+          message.toLowerCase().includes(keyword)
+        );
+
+        if (isEmergency) {
+          removeLoadingIndicator(loadingIndicator);
+          openResourcesModal();
+          addMessage(
+            "I notice you're in crisis. Please click the Emergency Resources button or call 988 immediately. You're not alone, and help is available 24/7."
+          );
+          return;
+        }
+
+        try {
+          const response = await fetch("http://localhost:8000/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: message }),
+          });
+
+          const data = await response.json();
+          removeLoadingIndicator(loadingIndicator);
+          addMessage(data.response);
+        } catch (error) {
+          console.error("Error:", error);
+          removeLoadingIndicator(loadingIndicator);
+          addMessage(
+            "I apologize, but there seems to be a connection issue. Please try again."
+          );
+        }
+      }
+
+      // Resources Modal Functions
+      function openResourcesModal() {
+        document.getElementById("resources-modal").style.display = "flex";
+      }
+
+      function closeResourcesModal() {
+        document.getElementById("resources-modal").style.display = "none";
+      }
+
+      // Event Listeners
+      sendButton.addEventListener("click", sendMessage);
+      messageInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") sendMessage();
+      });
+
+      // Category selection
+      document.querySelectorAll(".category-item").forEach((item) => {
+        item.addEventListener("click", () => {
+          const category = item.textContent.trim();
+          if (category.includes("Emergency") || category.includes("Suicidal")) {
+            openResourcesModal();
+            // addMessage("If you're in crisis, please use our emergency resources or call 988 immediately. Your life matters.");
+          } else {
+            messageInput.value = `Tell me about ${category}`;
+            sendMessage();
+          }
+        });
+      });
+
+      // Close modal when clicking outside
+      window.onclick = function (event) {
+        const modal = document.getElementById("resources-modal");
+        if (event.target === modal) {
+          closeResourcesModal();
+        }
+      };
+      const moodButtons = document.querySelectorAll(".mood-button");
+      const moodHistory = document.getElementById("mood-history");
+
+      function saveMood(mood) {
+        const moods = JSON.parse(localStorage.getItem("moodHistory") || "[]");
+        const moodEntry = {
+          mood: mood,
+          timestamp: new Date().toLocaleString(),
+        };
+        moods.push(moodEntry);
+
+        // Keep only last 5 entries
+        if (moods.length > 5) {
+          moods.shift();
+        }
+
+        localStorage.setItem("moodHistory", JSON.stringify(moods));
+        updateMoodHistory();
+      }
+
+      function updateMoodHistory() {
+        const moods = JSON.parse(localStorage.getItem("moodHistory") || "[]");
+        moodHistory.innerHTML = moods
+          .map(
+            (entry) =>
+              `<div class="mood-history-item">
+                    ${entry.mood} 
+                    <small>${entry.timestamp}</small>
+                </div>`
+          )
+          .join("");
+      }
+
+      // Initialize mood history on page load
+      updateMoodHistory();
+
+      // Add event listeners to mood buttons
+      moodButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const mood = button.getAttribute("data-mood");
+          saveMood(mood);
+
+          // Optional: Send mood to backend or add a supportive message
+          addMessage(
+            `Thank you for sharing. It's great that you're tracking your emotions. Your ${mood} mood has been recorded.`
+          );
+        });
+      });
+
+      const gamesSection = document.querySelector(".games-section");
+      const gamesModal = document.getElementById("games-modal");
+      const categoryGamesList = document.getElementById("category-games-list");
+      const gameCategories = document.querySelectorAll(".game-category");
+
+      const mentalHealthGames = {
+        Anxiety: [
+          {
+            name: "Headspace",
+            description: "Meditation and mindfulness game",
+            link: "https://www.headspace.com/headspace-meditation-app",
+          },
+          {
+            name: "Calm Harm",
+            description: "App to help manage anxiety and self-harm urges",
+            link: "https://calmharm.co.uk/",
+          },
+        ],
+        Depression: [
+          {
+            name: "SuperBetter",
+            description: "Gamified mental resilience training",
+            link: "https://www.superbetter.com/",
+          },
+          {
+            name: "Happify",
+            description: "Science-based games to overcome negative thoughts",
+            link: "https://www.happify.com/",
+          },
+        ],
+        "Stress Management": [
+          {
+            name: "Personal Zen",
+            description: "Game to train brain to reduce anxiety",
+            link: "https://personalzen.com/",
+          },
+          {
+            name: "Breathe2Relax",
+            description: "Stress management breathing exercise app",
+            link: "https://t2health.org/apps/breathe2relax",
+          },
+        ],
+        "Self-Esteem": [
+          {
+            name: "What's Up?",
+            description: "Mental health app with coping strategies",
+            link: "https://appraven.net/app/1386432985",
+          },
+          {
+            name: "MindShift CBT",
+            description: "Anxiety management app for teens and young adults",
+            link: "https://www.anxietycanada.com/resources/mindshift-cbt/",
+          },
+        ],
+      };
+
+      function openGamesModal() {
+        gamesModal.style.display = "flex";
+      }
+
+      function closeGamesModal() {
+        gamesModal.style.display = "none";
+      }
+
+      function displayCategoryGames(category) {
+        categoryGamesList.innerHTML = mentalHealthGames[category]
+          .map(
+            (game) => `
+      <div class="category-game-item">
+        <div>
+          <strong>${game.name}</strong>
+          <p>${game.description}</p>
+        </div>
+        <a href="${game.link}" target="_blank" class="category-game-link">Visit</a>
+      </div>
+    `
+          )
+          .join("");
+      }
+
+      // Event Listeners
+      gamesSection.addEventListener("click", openGamesModal);
+
+      gameCategories.forEach((category) => {
+        category.addEventListener("click", () => {
+          const selectedCategory = category.getAttribute("data-category");
+          displayCategoryGames(selectedCategory);
+        });
+      });
+
+      // Close modal when clicking outside
+      window.addEventListener("click", (event) => {
+        if (event.target === gamesModal) {
+          closeGamesModal();
+        }
+      });
+      function openEmotionDetection() {
+        window.open("http://127.0.0.1:5000/", "_blank");
+      }
+      const topicContent = {
+        "Stress Management": {
+          description:
+            "Learn effective techniques to manage and reduce stress in your daily life. We'll explore various strategies and tools to help you cope better.",
+          categories: [
+            {
+              title: "Understanding Your Stress",
+              questions: [
+                "What are the common physical symptoms of stress that I should watch out for?",
+                "Can you help me identify my personal stress triggers?",
+                "How can I differentiate between normal stress and chronic stress?",
+                "What's the relationship between stress and sleep quality?",
+              ],
+            },
+            {
+              title: "Immediate Relief Techniques",
+              questions: [
+                "What are some quick breathing exercises for instant stress relief?",
+                "Can you guide me through a 5-minute stress reduction technique?",
+                "What grounding exercises can help during stressful moments?",
+                "How can I use progressive muscle relaxation for stress relief?",
+              ],
+            },
+            {
+              title: "Long-term Management",
+              questions: [
+                "How can I develop a personalized stress management plan?",
+                "What lifestyle changes could help reduce my overall stress levels?",
+                "How can I build emotional resilience to handle stress better?",
+                "What role does exercise play in managing chronic stress?",
+              ],
+            },
+          ],
+          resources: [
+            { text: "Stress Management Guide", url: "#" },
+            { text: "Breathing Exercises", url: "#" },
+            { text: "Sleep Hygiene Tips", url: "#" },
+            { text: "Stress Journal Template", url: "#" },
+          ],
+        },
+        "Anxiety Support": {
+          description:
+            "Explore effective strategies to manage anxiety and build emotional resilience. Learn to understand your anxiety better and develop coping mechanisms.",
+          categories: [
+            {
+              title: "Understanding Anxiety",
+              questions: [
+                "What are the different types of anxiety disorders?",
+                "How can I recognize early warning signs of an anxiety attack?",
+                "What's the difference between normal anxiety and an anxiety disorder?",
+                "How does anxiety affect physical health?",
+              ],
+            },
+            {
+              title: "Coping Strategies",
+              questions: [
+                "What are some effective grounding techniques for anxiety?",
+                "Can you teach me the 3-3-3 rule for anxiety?",
+                "How can I stop anxious thoughts from spiraling?",
+                "What mindfulness exercises help with anxiety?",
+              ],
+            },
+            {
+              title: "Daily Management",
+              questions: [
+                "How can I create an anxiety management toolkit?",
+                "What lifestyle changes can help reduce anxiety?",
+                "How can I explain my anxiety to friends and family?",
+                "What are some natural remedies for anxiety?",
+              ],
+            },
+          ],
+          resources: [
+            { text: "Anxiety Workbook", url: "#" },
+            { text: "Panic Attack Guide", url: "#" },
+            { text: "Mindfulness Resources", url: "#" },
+            { text: "Support Groups", url: "#" },
+          ],
+        },
+        // Add more topics as needed
+      };
+
+      function showTopicSuggestions(topic) {
+        const content = topicContent[topic];
+        if (!content) return;
+
+        document.getElementById("current-topic").textContent = topic;
+        document.getElementById("topic-description").textContent =
+          content.description;
+
+        const suggestionContent = document.getElementById("suggestion-content");
+        suggestionContent.innerHTML = content.categories
+          .map(
+            (category) => `
+                    <div class="suggestion-group">
+                        <div class="suggestion-title">${category.title}</div>
+                        <div class="suggested-questions">
+                            ${category.questions
+                              .map(
+                                (question) => `
+                                <div class="suggested-question" onclick="askQuestion('${question.replace(
+                                  /'/g,
+                                  "\\'"
+                                )}')">${question}</div>
+                            `
+                              )
+                              .join("")}
+                        </div>
+                    </div>
+                `
+          )
+          .join("");
+
+        const resourcesContainer = document.getElementById("topic-resources");
+        resourcesContainer.innerHTML = content.resources
+          .map(
+            (resource) => `
+                    <a href="${resource.url}" class="resource-link" target="_blank">${resource.text}</a>
+                `
+          )
+          .join("");
+
+        document.getElementById("modal-overlay").style.display = "block";
+        document.getElementById("topic-suggestions").style.display = "block";
+      }
+
+      function closeSuggestions() {
+        document.getElementById("modal-overlay").style.display = "none";
+        document.getElementById("topic-suggestions").style.display = "none";
+      }
+
+      function askQuestion(question) {
+        if (messageInput) {
+          messageInput.value = question;
+          sendMessage();
+          closeSuggestions();
+        }
+      }
+
+      // Event Listeners
+      document
+        .getElementById("modal-overlay")
+        .addEventListener("click", closeSuggestions);
+
+      // Update category item click handlers
+      document.querySelectorAll(".category-item").forEach((item) => {
+        item.addEventListener("click", () => {
+          const category = item.textContent.trim().replace(/^[^ ]+ /, "");
+          if (category.includes("Emergency")) {
+            openResourcesModal();
+          } else {
+            showTopicSuggestions(category);
+          }
+        });
+      });
+    </script>
+    <button class="emotion-detection-btn" onclick="openEmotionDetection()">
+      🧠 Emotion Detection
+    </button>
+  </body>
+</html>
