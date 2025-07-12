@@ -1,0 +1,26 @@
+# Ignore Python cache and compiled files
+__pycache__/
+*.pyc
+
+# Ignore virtual environments
+venv/
+
+# Ignore database or local storage files
+*.db
+
+# Ignore model files and large binaries
+*.h5
+*.xml
+*.png
+*.pt
+*.ckpt
+
+# Ignore VS Code settings or system files (optional)
+.vscode/
+.DS_Store
+
+# Ignore Chainlit and other project-specific hidden folders
+.chainlit/
+.files/
+vectorstore/
+model_cache/
